@@ -2,11 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import { createClient } from "redis";
+import UserRouter from "./routes/user.routes.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
-console.log(PORT);
-console.log(process.env.UPSTASH_REDIS_REST_TOKEN);
 // connecting to the database.
 connectDb();
 // connect to remote redis client
@@ -17,6 +16,8 @@ export const redisClient = createClient({
 redisClient.connect().then(() => {
     console.log("Connected to redis server.");
 }).catch(console.error);
+// api
+app.use("/api/v1", UserRouter);
 app.listen(PORT, () => {
     console.log(`Server running on PORT: ${PORT}`);
 });
