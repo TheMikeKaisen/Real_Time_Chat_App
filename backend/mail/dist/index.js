@@ -1,5 +1,7 @@
 import express from "express";
+import dotenv from "dotenv";
 const app = express();
-app.listen(8080, () => {
-    console.log("Server running on PORT: 8080");
+dotenv.config();
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on PORT: ${process.env.PORT}`);
 });
