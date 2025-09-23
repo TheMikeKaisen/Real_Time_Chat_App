@@ -3,12 +3,14 @@ import dotenv from "dotenv"
 import connectDb from "./config/db.js";
 import { createClient } from "redis";
 import UserRouter from "./routes/user.routes.js";
+import { PublishToQueue, RabbitMqConnection } from "./config/rabbitmq.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT
 
 // connecting to the database.
 connectDb();
+RabbitMqConnection();
 
 // connect to remote redis client
 // i am using upstash redis
