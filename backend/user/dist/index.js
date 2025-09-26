@@ -7,6 +7,9 @@ import { RabbitMqConnection } from "./config/rabbitmq.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
+// to test json files
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // connecting to the database.
 connectDb();
 RabbitMqConnection();
