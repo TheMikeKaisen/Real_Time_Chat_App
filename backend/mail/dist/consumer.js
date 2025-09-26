@@ -38,7 +38,7 @@ export const startOtpConsumer = async () => {
                     channel.ack(msg);
                 }
                 catch (error) {
-                    console.log("❌ Could not consume the message from queue!", error);
+                    console.log("❌ Failed to send otp!", error);
                 }
             }
         });
