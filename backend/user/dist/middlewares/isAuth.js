@@ -24,6 +24,9 @@ export const isAuth = async (req, res, next) => {
             return;
         }
         req.user = decodedValue.user;
+        // make req.user to be the decoded body of the user
+        // calling the next function
+        next();
     }
     catch (error) {
         res.status(401).json({
