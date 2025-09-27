@@ -3,6 +3,7 @@ import { PublishToQueue } from "../config/rabbitmq.js";
 import TryCatch from "../config/TryCatch.js";
 import { redisClient } from "../index.js";
 import { UserModel } from "../model/User.js";
+import mongoose from "mongoose";
 // SEND THE OTP
 export const loginUser = TryCatch(async (req, res) => {
     const { email } = req.body;
@@ -91,4 +92,55 @@ export const verifyUser = TryCatch(async (req, res) => {
 export const myProfile = TryCatch(async (req, res) => {
     const user = req.user;
     res.json(user);
+});
+//Controller to update the name of the user
+export const updateName = TryCatch(async (req, res) => {
+    const user = await UserModel.findById(req.user?._id);
+    if (!user) {
+        res.status(404).json({
+            message: "Please login",
+        });
+        return;
+    }
+    user.name = req.body.name;
+    await user.save();
+    const token = generateToken(user);
+    res.json({
+        message: "User updated",
+        user,
+        token,
+    });
+});
+export const getAllUsers = TryCatch(async (req, res) => {
+    const users = await UserModel.find();
+    res.json({
+        users
+    });
+});
+export const getUser = TryCatch(async (req, res) => {
+    const userId = req.params.id;
+    console.log(userId);
+    if (!userId) {
+        res.status(404).json({
+            message: "userId not provided"
+        });
+        return;
+    }
+    // first validate if the provided id is a valid Mongoose Object Id
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(404).json({
+            message: "Invalid UserId"
+        });
+        return;
+    }
+    const user = await UserModel.findById(userId);
+    if (!user) {
+        res.status(404).json({
+            message: "User not found",
+        });
+        return;
+    }
+    res.json({
+        user
+    });
 });
