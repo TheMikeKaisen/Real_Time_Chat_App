@@ -1,3 +1,4 @@
+import { generateToken } from "../config/generateToken.js";
 import { PublishToQueue } from "../config/rabbitmq.js";
 import TryCatch from "../config/TryCatch.js";
 import { redisClient } from "../index.js";
@@ -91,5 +92,12 @@ export const verifyUser = TryCatch(async(req, res)=>{
         const name = email.slice(0, 8);
         user = await UserModel.create({name, email});
     }
+
+    const token = generateToken(user);
+    return res.json({
+        message:"User verified!",
+        user, 
+        token,
+    })
 
 })
