@@ -85,3 +85,10 @@ export const verifyUser = TryCatch(async (req, res) => {
         token,
     });
 });
+// fetch my profile
+// this will be called after middleware, so the res.body changes along the way
+// in the auth middleware, req.user becomes the actual jwt decoded user
+export const myProfile = TryCatch(async (req, res) => {
+    const user = req.user;
+    res.json(user);
+});

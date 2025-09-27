@@ -1,7 +1,9 @@
+import { Response } from "express";
 import { generateToken } from "../config/generateToken.js";
 import { PublishToQueue } from "../config/rabbitmq.js";
 import TryCatch from "../config/TryCatch.js";
 import { redisClient } from "../index.js";
+import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import { UserModel } from "../model/User.js";
 
 // SEND THE OTP
@@ -100,4 +102,12 @@ export const verifyUser = TryCatch(async(req, res)=>{
         token,
     })
 
+})
+
+// fetch my profile
+// this will be called after middleware, so the res.body changes along the way
+// in the auth middleware, req.user becomes the actual jwt decoded user
+export const myProfile = TryCatch(async(req: AuthenticatedRequest, res: Response) =>{
+    const user = req.user
+    res.json(user)
 })
