@@ -22,7 +22,6 @@ export const redisClient = createClient({
     url: `rediss://default:${process.env.UPSTASH_REDIS_REST_TOKEN}@${process.env.UPSTASH_REDIS_REST_URL}:6379`,
 })
 
-
 redisClient.connect().then(
     ()=>{
         console.log("Connected to redis server.")

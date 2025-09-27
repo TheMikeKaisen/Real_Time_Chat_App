@@ -1,6 +1,8 @@
 import { PublishToQueue } from "../config/rabbitmq.js";
 import TryCatch from "../config/TryCatch.js";
 import { redisClient } from "../index.js";
+import { UserModel } from "../model/User.js";
+// SEND THE OTP
 export const loginUser = TryCatch(async (req, res) => {
     const { email } = req.body;
     // okay, so the context here is that i am setting a rate limit key every time i am 
@@ -46,4 +48,33 @@ export const loginUser = TryCatch(async (req, res) => {
     return res.status(200).json({
         message: "OTP sent to your mail"
     });
+});
+// VERIFY THE ENTERED OTP
+export const verifyUser = TryCatch(async (req, res) => {
+    const { email, otp: enteredOtp } = req.body;
+    if (!email || !enteredOtp) {
+        res.status(400).json({
+            message: "Email and OTP required",
+        });
+        return;
+    }
+    // otpKey same as that which is used while login.
+    // Therefore, i can fetch the SERVER SENT OTP from redis client
+    // and compare with the entered otp.
+    const otpKey = `otp:${email}`;
+    const storedOtp = await redisClient.get(otpKey);
+    if (!storedOtp || storedOtp != enteredOtp) {
+        res.status(400).json({
+            message: "Invalid or expired OTP",
+        });
+        return;
+    }
+    // if the otp matches, then delete the otp.
+    await redisClient.del(otpKey);
+    // if the user doesn't exist, then create one.
+    let user = await UserModel.findOne({ email });
+    if (!user) {
+        const name = email.slice(0, 8);
+        user = await UserModel.create({ name, email });
+    }
 });
