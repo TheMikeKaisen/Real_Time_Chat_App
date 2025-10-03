@@ -8,7 +8,11 @@ router.post("/login", loginUser);
 router.post("/verify", verifyUser);
 router.get("/me", isAuth, myProfile);
 router.get("/get-all-users", isAuth, getAllUsers)
-router.get("/get-user/:id", isAuth, getUser)
+
+// getting a particular user is not middleware protected 
+// because i will only be using this url to fetch data from other backend service only
+// and not frontend
+router.get("/get-user/:id", getUser)
 router.get("/update-username", isAuth, updateName)
 
 
