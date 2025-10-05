@@ -1,10 +1,35 @@
 "use client";
+import axios from 'axios';
 import { ArrowRight, Mail } from 'lucide-react'
-import React from 'react'
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react'
 
 const LoginPage = () => {
+    const [email, setEmail] = useState<string>("")
+    const [loading, setLoading] = useState<boolean>(false)
+    const router = useRouter(); // from next/navigation
+
+    const handleSubmit = async (e: React.FormEvent<HTMLElement>): Promise<void> => {
+        e.preventDefault();
+        console.log("inside handlesubmit")
+        setLoading(true);
+        try {
+            console.log("reached here")
+            const { data } = await axios.post(`http://localhost:5000/api/v1/login`, {
+                email
+            })
+            console.log("data", data);
+            alert(data.message);
+            router.push(`/verify?email=${email}`)
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            alert(err.response?.data?.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    }
     return (
-       <div className='min-h-screen bg-gray-900 flex items-center justify-center p-4'>
+        <div className='min-h-screen bg-gray-900 flex items-center justify-center p-4'>
             <div className='max-w-md w-full'>
                 <div className='bg-gray-800 border border-gray-700 rounded-lg p-8'>
                     <div className="text-center mb-8">
@@ -18,12 +43,17 @@ const LoginPage = () => {
                         <p className="text-gray-300 text-lg ">Enter your email to continue your journey</p>
                     </div>
 
-                    <form className="space-y-6 ">
+                    <form className="space-y-6 " onSubmit={handleSubmit}>
                         <div>
                             <label htmlFor="email" className='block text-sm font-medium text-gray-300 mb-2'>Email Address</label>
-                            <input type="email" id='email' className='w-full px-4 py-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400' placeholder='Enter your email address' required />
+                            <input type="email" id='email' className='w-full px-4 py-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400' placeholder='Enter your email address'
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required />
                         </div>
-                        <button type='submit' className='w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'>
+                        <button type='submit' className='w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                        
+                        >
                             <div className='flex items-center justify-center gap-2'>
                                 <span>Send Verification Code</span>
                                 <ArrowRight className='w-5 h-5' />
