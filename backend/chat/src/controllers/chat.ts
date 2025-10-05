@@ -208,3 +208,84 @@ export const sendMessage = TryCatch(async(req: AuthenticatedRequest, res)=>{
     })
     
 })
+
+export const getMessageByChat = TryCatch(async(req:AuthenticatedRequest, res)=>{
+    const userId = req.user?._id;
+    const {chatId} = req.params;
+
+    if(!userId){
+        res.status(400).json({
+            message:"Unauthorized!",
+        })
+        return;
+    }
+    if(!chatId){
+        res.status(400).json({
+            message:"ChatId required",
+        })
+        return;
+    }
+
+    const chat = await Chat.findById(chatId);
+    if(!chat){
+        res.status(404).json({
+            message:"chat not found",
+        })
+        return;
+    }
+     const isUserInChat = chat.users.some(
+        (userId)=> userId.toString() === userId.toString()
+    )
+
+    if(!isUserInChat){
+        res.status(403).json({
+            message: "You cannot send messages in this chat!"
+        })
+        return;
+    }
+
+    const messagesToMarkSeen = await Messages.find({
+        chatId: chatId, 
+        sender: {$ne: userId},
+        seen: false,
+    })
+    await Messages.updateMany({
+        chatId: chatId,
+        sender: {$ne: userId},
+        seen: false,
+    }, {
+        seen: true,
+        seenAt: new Date()
+    })
+
+    const messages = await Messages.find({
+        chatId
+    }).sort({createdAt: 1})
+    const otherUserId = chat.users.find((id)=> id!==userId);
+    try {
+        const {data} = await axios.get(
+                    // "http://localhost:5000/api/v1/get-user/68d75fca0544576bc7bc0a86"
+                    `${process.env.USER_SERVICE}/api/v1/get-user/${otherUserId}`
+                )
+        if(!otherUserId){
+            res.status(400).json({
+                message: "no other user"
+            })
+            return;
+        }
+
+        // TODO: sockets
+
+        res.json({
+            messages,
+            user: data,
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            messages,
+            user: {_id: otherUserId, name: "Unknown user"}
+        })
+    }
+})
