@@ -1,8 +1,9 @@
 import React from 'react'
+import VerifyOtp from "../../components/VerifyOtp"
 
 const VerifyPage = () => {
   return (
-    <div>VerifyPage</div>
+    <VerifyOtp />
   )
 }
 

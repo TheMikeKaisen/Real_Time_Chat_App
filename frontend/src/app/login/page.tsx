@@ -1,6 +1,6 @@
 "use client";
 import axios from 'axios';
-import { ArrowRight, Mail } from 'lucide-react'
+import { ArrowRight, Loader2, Mail } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 
@@ -11,14 +11,12 @@ const LoginPage = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLElement>): Promise<void> => {
         e.preventDefault();
-        console.log("inside handlesubmit")
         setLoading(true);
         try {
             console.log("reached here")
             const { data } = await axios.post(`http://localhost:5000/api/v1/login`, {
                 email
             })
-            console.log("data", data);
             alert(data.message);
             router.push(`/verify?email=${email}`)
         } catch (error: unknown) {
@@ -52,12 +50,21 @@ const LoginPage = () => {
                                 required />
                         </div>
                         <button type='submit' className='w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
-                        
+                            disabled={loading}
                         >
-                            <div className='flex items-center justify-center gap-2'>
-                                <span>Send Verification Code</span>
-                                <ArrowRight className='w-5 h-5' />
-                            </div>
+                            {
+                                loading ?
+                                    <div className='flex items-center justify-center gap-2'>
+                                        <Loader2 className='w-5 h-5' />
+                                        Sending OTP to your mail...
+                                    </div>
+                                    :
+                                    <div className='flex items-center justify-center gap-2'>
+                                        <span>Send Verification Code</span>
+                                        <ArrowRight className='w-5 h-5' />
+                                    </div>
+                            }
+
                         </button>
                     </form>
 
