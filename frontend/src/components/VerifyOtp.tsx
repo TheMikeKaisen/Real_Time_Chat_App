@@ -1,12 +1,17 @@
 "use client";
 import axios from 'axios';
 import { ArrowRight, ChevronLeft, Loader2, Lock } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { redirect, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react'
 import Cookies from "js-cookie";
-import { user_service } from '@/context/AppContext';
+import { useAppData, user_service } from '@/context/AppContext';
+import Loading from './Loading';
 
 const VerifyOtp = () => {
+    
+    // importing from context 
+    const {isAuth, setIsAuth, setUser, loading: userLoading} = useAppData();
+
     const [loading, setLoading] = useState<boolean>(false)
 
     // to take 6 digit otp in 6 boxes
@@ -87,6 +92,8 @@ const VerifyOtp = () => {
             })
             setOtp(["", "", "","", "", ""]);
             inputRefs.current[0]?.focus();
+            setUser(data.user);
+            setIsAuth(true);
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             setError(err.response?.data?.message || "Something went wrong");
@@ -112,6 +119,8 @@ const VerifyOtp = () => {
             setLoading(false);
         }
     }
+    if(userLoading) return <Loading />;
+    if(isAuth) redirect("/chat");
     return (
         <div className='min-h-screen bg-gray-900 flex items-center justify-center p-4'>
             <div className='max-w-md w-full'>
